@@ -1,0 +1,42 @@
+<!-- (C) 2017 munchkinhalfling <munchkin@rutins.com> -->
+<!-- NOTE: VS Code doesn't have any intellisense for TSInject, and i'm pretty sure no editor will have intellisense for the dependencies. -->
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>TSInject Demo</title>
+    <script src="./tsinject.js"></script>
+</head>
+<body>
+    <script>
+        // this function has absolutely NOTHING to do with TSInject (in fact, I don't need it, so i tsinject.ignore()d it)
+        tsinject.ignore(function test(...items) {
+            var result = false;
+            for(let item of items) {
+                result &= (item == (items[items.indexOf(item) - 1]? items[items.indexOf(item) - 1] : (items[items.indexOf(item) + 1]? items[items.indexOf(item) + 1] : item)));
+            }
+            return result;
+        });
+        // this registers a dependency called $gel. note the call to tsinject.preparef(). This makes sure that the function is bound to the right context. Only use this when
+        // dealing with functions that use "this".
+        tsinject.register('$gel', tsinject.preparef(document.getElementById, document));
+        // $doc is a predefined TSInject injectable, and $gel is as we defined it on the last line.
+        // Surprise, surprise, you don't need to inject everything (a.k.a works and noWorks), but make sure to put anything non-injected first.
+        // IMPORTANT: Make sure to add an @inject comment directive for each injected object, respectively.
+        var myFunc = tsinject.resolve((works, noWorks, $doc, $gel) => {
+            // @inject $doc
+            // @inject $gel
+            let el = $doc.createEl('div');
+            el.id = 'moo';
+            $doc.getBody().appendChild(el);
+            if(el == $gel('moo') && el == $doc.select('#moo') && $doc.select('#moo') == $gel('moo')) {
+                el.innerHTML = works;
+            } else {
+                el.innerHTML = noWorks;
+            }
+        });
+        myFunc('Meep meep meep meep meep! MEEEP!', 'Wa wa waaaaa'); // This calls myFunc with works set to 'Meep meep meep meep meep! MEEEP!', and noWorks set to 'Wa wa waaaaa'.
+    </script>
+    <hr>
+    (C) 2017 munchkinhalfling &lt;munchkin@rutins.com&gt;
+</body>
+</html>
