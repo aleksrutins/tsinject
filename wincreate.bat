@@ -12,3 +12,7 @@ echo "<!doctype html>
     </script>
   </body>
 </html>">"./$0/index.html"
+cd $0
+git clone https://github.com/munchkinhalfling/tsinject.git
+rm wincreate.bat
+rm demo.html
